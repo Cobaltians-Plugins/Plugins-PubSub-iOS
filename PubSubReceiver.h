@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "CobaltViewController.h"
+#import <Cobalt/CobaltViewController.h>
 
 @class PubSubReceiver;
 

@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 Kristal. All rights reserved.
 //
 
-#import "CobaltAbstractPlugin.h"
-
 #import "PubSubReceiver.h"
+
+#import <Cobalt/CobaltAbstractPlugin.h>
 
 /**
  * A plugin which allow UIWebViews contained in CobaltViewController to broadcast messages between them into channels.
