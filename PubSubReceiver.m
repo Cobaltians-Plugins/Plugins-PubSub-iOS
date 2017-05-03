@@ -16,8 +16,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-- (id)initWithViewController:(CobaltViewController *)viewController {
+- (id)initWithWebView:(WebViewType)webView
+   fromViewController:(CobaltViewController *)viewController {
     if (self = [super init]) {
+        _webView = webView;
         _viewController = viewController;
         callbackForChannel = [NSMutableDictionary dictionary];
     }
@@ -25,10 +27,12 @@
     return self;
 }
 
-- (id)initWithViewController:(CobaltViewController *)viewController
-                 andCallback:(NSString *)callback
-                  forChannel:(NSString *)channel {
+- (id)initWithWebView:(WebViewType)webView
+   fromViewController:(CobaltViewController *)viewController
+          andCallback:(NSString *)callback
+           forChannel:(NSString *)channel {
     if (self = [super init]) {
+        _webView = webView;
         _viewController = viewController;
         callbackForChannel = [NSMutableDictionary dictionaryWithDictionary:@{channel: callback}];
     }
@@ -82,8 +86,16 @@
         return;
     }
     
-    [_viewController sendCallback:callback
-                        withData:message];
+    switch (_webView) {
+        case WEB_VIEW:
+            [_viewController sendCallback:callback
+                                 withData:message];
+            break;
+        case WEB_LAYER:
+            [_viewController sendCallbackToWebLayer:callback
+                                           withData:message];
+            break;
+    }
 }
 
 @end

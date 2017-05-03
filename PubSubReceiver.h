@@ -46,6 +46,10 @@
 ///////////////////////////////////////////////////////////////////////////
 
 /**
+ * The WebView (WebView or WebLayer) to which send messages
+ */
+@property (nonatomic, readonly) WebViewType webView;
+/**
  * The CobaltViewController containing the UIWebView to which send messages
  */
 @property (weak, nonatomic, readonly) CobaltViewController *viewController;
@@ -68,21 +72,25 @@
 ///////////////////////////////////////////////////////////////////////////
 
 /**
- * @discussion Creates and return a PubSubReceiver for the specified CobaltViewController registered to no channel.
+ * @discussion Creates and return a PubSubReceiver for the WebView from the specified CobaltViewController registered to no channel.
+ * @param webView the WebView to which send messages.
  * @param viewController the CobaltViewController containing the UIWebView to which send messages.
- * @return A new PubSubReceiver for the specified CobaltViewController registered to no channel.
+ * @return A new PubSubReceiver for the WebView from the specified CobaltViewController registered to no channel.
  */
-- (id)initWithViewController:(CobaltViewController *)viewController;
+- (id)initWithWebView:(WebViewType)webView
+   fromViewController:(CobaltViewController *)viewController;
 /**
- * @discussion Creates and return a PubSubReceiver for the specified CobaltViewController registered to the specified channel.
+ * @discussion Creates and return a PubSubReceiver for the WebView from the specified CobaltViewController registered to the specified channel.
+ * @param webView the WebView to which send messages.
  * @param viewController the CobaltViewController containing the UIWebView to which send messages.
  * @param callback the callback to call to forward messages from the specified channel.
  * @param channel the channel from which the messages will come from.
  * @return A new PubSubReceiver for the specified CobaltViewController registered to the specified channel.
  */
-- (id)initWithViewController:(CobaltViewController *)viewController
-                 andCallback:(NSString *)callback
-                  forChannel:(NSString *)channel;
+- (id)initWithWebView:(WebViewType)webView
+   fromViewController:(CobaltViewController *)viewController
+          andCallback:(NSString *)callback
+           forChannel:(NSString *)channel;
 
 ///////////////////////////////////////////////////////////////////////////
 

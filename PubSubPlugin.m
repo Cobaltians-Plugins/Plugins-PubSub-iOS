@@ -32,19 +32,24 @@
 
 - (void)onMessageFromCobaltController:(CobaltViewController *)viewController
                               andData:(NSDictionary *)data {
-    [self onMessageWithCobaltController:viewController andData:data];
+    [self onMessageFromCobaltController:viewController
+                             andWebView:WEB_VIEW
+                               withData:data];
 }
 
 - (void)onMessageFromWebLayerWithCobaltController:(CobaltViewController *)viewController
                                           andData:(NSDictionary *)data {
-    [self onMessageWithCobaltController:viewController andData:data];
+    [self onMessageFromCobaltController:viewController
+                             andWebView:WEB_LAYER
+                               withData:data];
 }
 
 /**
  * @discussion Regroups onMessageFromCobaltController:andData: and onMessageFromWebLayerWithCobaltController:andData: methods in one
  */
-- (void)onMessageWithCobaltController:(CobaltViewController *)viewController
-                              andData:(NSDictionary *)data {
+- (void)onMessageFromCobaltController:(CobaltViewController *)viewController
+                           andWebView:(WebViewType)webView
+                             withData:(NSDictionary *)data {
     id action = [data objectForKey:@"action"];
     NSAssert(action && [action isKindOfClass:[NSString class]], @"Missing action field or not a string...");
     
@@ -61,13 +66,15 @@
                    toChannel:channel];
     }
     else if ([action isEqualToString:@"subscribe"]) {
-        [self subscribeViewController:viewController
-                            toChannel:channel
-                         withCallback:callback];
+        [self subscribeWebView:webView
+            fromViewController:viewController
+                     toChannel:channel
+                  withCallback:callback];
     }
     else if ([action isEqualToString:@"unsubscribe"]) {
-        [self unsubscribeViewController:viewController
-                            FromChannel:channel];
+        [self unsubscribeWebView:webView
+              fromViewController:viewController
+                     fromChannel:channel];
     }
 }
 
@@ -91,19 +98,22 @@
 }
 
 /**
- * @discussion Subscribes the specified viewController to messages sent via the specified channel.
- * @warning if no PubSubReceiver was created for the specified viewController, creates it.
+ * @discussion Subscribes the WebView from the specified viewController to messages sent via the specified channel.
+ * @warning if no PubSubReceiver was created for the WebView from the specified viewController, creates it.
+ * @param webView the WebView (WebView or WebLayer) the PubSubReceiver will have to send its messages to.
  * @param viewController the CobaltViewController the PubSubReceiver will have to use to send messages.
  * @param channel the channel the PubSubReceiver subscribes.
  * @param callback the callback the PubSubReceiver will have to call to send messages
  */
-- (void)subscribeViewController:(CobaltViewController *)viewController
-                      toChannel:(NSString *)channel
-                   withCallback:(NSString *)callback {
+- (void)subscribeWebView:(WebViewType)webView
+      fromViewController:(CobaltViewController *)viewController
+               toChannel:(NSString *)channel
+            withCallback:(NSString *)callback {
     __block PubSubReceiver *receiver;
     
     [receivers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([viewController isEqual:[(PubSubReceiver *)obj viewController]]) {
+        if ([viewController isEqual:((PubSubReceiver *) obj).viewController]
+            && webView == ((PubSubReceiver *) obj).webView) {
             receiver = obj;
             *stop = YES;
         }
@@ -114,25 +124,29 @@
                         withCallback:callback];
     }
     else {
-        receiver = [[PubSubReceiver alloc] initWithViewController:viewController
-                                                      andCallback:callback
-                                                       forChannel:channel];
+        receiver = [[PubSubReceiver alloc] initWithWebView:webView
+                                        fromViewController:viewController
+                                               andCallback:callback
+                                                forChannel:channel];
         [receiver setDelegate:self];
         [receivers addObject:receiver];
     }
 }
 
 /**
- * @discussion Unsubscribes the specified viewController from messages sent via the specified channel.
- * @param viewController the viewController to unsubscribes from the channel.
+ * @discussion Unsubscribes the WebView from the specified viewController from messages sent via the specified channel.
+ * @param webView the WebView (WebView or WebLayer) to unsubscribes from the channel.
+ * @param viewController the CobaltViewController containing the UIWebView unsubscribes from the channel.
  * @param channel the channel from which the messages come from.
  */
-- (void)unsubscribeViewController:(CobaltViewController *)viewController
-                      FromChannel:(NSString *)channel {
+- (void)unsubscribeWebView:(WebViewType)webView
+        fromViewController:(CobaltViewController *)viewController
+               fromChannel:(NSString *)channel {
     __block PubSubReceiver *receiver;
     
     [receivers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([viewController isEqual:[(PubSubReceiver *)obj viewController]]) {
+        if ([viewController isEqual:((PubSubReceiver *) obj).viewController]
+            && webView == ((PubSubReceiver *) obj).webView) {
             receiver = obj;
             *stop = YES;
         }
